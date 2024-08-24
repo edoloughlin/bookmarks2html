@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookmarks</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: #333;
+            padding: 10px 20px;
+            color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-sizing: border-box;
+        }
+        .navbar h1 {
+            margin: 0;
+            font-size: 20px; /* Changed font size */
+            flex: 0 1 auto;
+        }
+        .navbar input[type="text"] {
+            flex: 1;
+            margin-left: 20px;
+            padding: 4px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            max-width: 100%; /* Ensure it doesn't extend off the page */
+            box-sizing: border-box; /* Ensure padding and borders are included in the width */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px 20px; /* Reduced top padding */
+            box-sizing: border-box;
+        }
+        .section {
+            margin-bottom: 60px;
+        }
+        .section h2 {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+        .masonry {
+            column-count: 3;  /* Number of columns */
+            column-gap: 20px; /* Gap between columns */
+        }
+        .folder {
+            background-color: #fff;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: inline-block; /* Ensure the element is treated individually */
+            width: 100%; /* Ensure the element takes full column width */
+            box-sizing: border-box;
+        }
+        .folder h3 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: #0066cc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bookmark-item {
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #f9f9f9;
+            border-radius: 3px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .bookmark-item a {
+            text-decoration: none;
+            color: #0066cc;
+            display: block;
+            font-weight: 500;
+        }
+        .bookmark-details {
+            font-size: 12px;
+            color: #777; /* Desaturated color */
+            word-break: break-all;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>Firefox Bookmarks</h1>
+        <input type="text" id="searchInput" placeholder="Search bookmarks..." oninput="filterBookmarks()">
+    </div>
+
+    <div class="container">
+        {% for section, folders in bookmarks_data.items() %}
+        <div class="section">
+            <h2>{{ 'Bookmarks Toolbar' if section == 'toolbar' else 'Bookmarks Menu' }}</h2>
+            <div class="masonry">
+                {% for folder in folders %}
+                <div class="folder">
+                    <h3>{{ folder.folder_title }}</h3>
+                    {% for bookmark in folder.bookmarks %}
+                    <div class="bookmark-item">
+                        <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.title }}</a>
+                        <div class="bookmark-details">
+                            <div>{{ bookmark.url }}</div>
+                            {% if bookmark.tags %}
+                            <div>Tags: {{ bookmark.tags }}</div>
+                            {% endif %}
+                            {% if bookmark.keyword %}
+                            <div>Keyword: {{ bookmark.keyword }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <script>
+        document.getElementById('searchInput').focus();
+
+        function filterBookmarks() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const folders = document.querySelectorAll('.folder');
+
+            folders.forEach(function(folder) {
+                const bookmarks = folder.querySelectorAll('.bookmark-item');
+                let hasVisibleBookmarks = false;
+
+                bookmarks.forEach(function(bookmark) {
+                    const text = bookmark.textContent.toLowerCase();
+                    if (text.includes(query)) {
+                        bookmark.style.display = 'block';
+                        hasVisibleBookmarks = true;
+                    } else {
+                        bookmark.style.display = 'none';
+                    }
+                });
+
+                // Hide the folder if no bookmarks match the query
+                folder.style.display = hasVisibleBookmarks ? 'inline-block' : 'none';
+            });
+        }
+    </script>
+
+</body>
+</html>
