@@ -2,9 +2,9 @@ import os
 import platform
 import sqlite3
 import shutil
-import tempfile
+import tempfile  # For temporary file handling
 from datetime import datetime, timedelta
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader  # For template rendering
 
 def get_firefox_profile_path():
     os_name = platform.system()
@@ -33,15 +33,15 @@ def build_full_folder_path(cursor, folder_id):
     folder = cursor.fetchone()
     if folder and folder[1] > 1:
         parent_path = build_full_folder_path(cursor, folder[1])
-        return f"{parent_path}/{folder[0]}" if parent_path else folder[0]
+        return f"{parent_path}/{folder[0]}" if parent_path and parent_path not in ['menu', 'toolbar'] else folder[0]
     return folder[0] if folder else ''
 
 def read_common_css():
-    with open("common.css", "r", encoding="utf-8") as f:
+    with open("static/css/common.css", "r", encoding="utf-8") as f:
         return f.read()
 
 def generate_html(template_name, context, output_filename):
-    env = Environment(loader=FileSystemLoader(searchpath='./'))
+    env = Environment(loader=FileSystemLoader(searchpath='./templates'))
     template = env.get_template(template_name)
 
     common_css = read_common_css()
@@ -56,3 +56,4 @@ def generate_html(template_name, context, output_filename):
         f.write(rendered_html)
 
     print(f"HTML file generated at: {output_path}")
+

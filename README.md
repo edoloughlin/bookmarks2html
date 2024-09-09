@@ -1,64 +1,112 @@
-# Bookmarks HTML Generator
+# Firefox Bookmarks HTML Generator
 
-Generates a responsive HTML page from your bookmarks (currently, only Firefox is supported). The script fetches bookmarks from your profile, formats them into a readable HTML layout, and includes incremental search.
+This project generates responsive HTML pages from your Firefox bookmarks. The scripts fetch bookmarks from your Firefox profile, format them into a readable HTML layout, and include incremental search functionality.
 
 ## Features
 
-- Fetches bookmarks from your (Firefox) profile.
-- Displays bookmarks in a responsive HTML page, in a panel per folder.
-- Separate sections for Bookmarks Toolbar and Bookmarks Menu
+- Fetches bookmarks from your Firefox profile.
+- Displays bookmarks in a responsive HTML page.
+- Provides separate sections for the Bookmarks Toolbar and Bookmarks Menu.
 - Includes a search bar for incremental searching.
-- Outputs the HTML file with a masonry layout for folder organization.
+- Outputs HTML files with a masonry layout for folder organization.
+- Allows grouping bookmarks by the date they were added or last updated.
+- Supports full folder hierarchy display and customizable date formats.
+
+## Project Structure
+
+The project follows a conventional Python project structure:
+
+```
+/your-project-directory/
+│
+├── /bookmark_utils/       # A package for common utilities
+│   ├── __init__.py        # Makes bookmark_utils a package
+│   ├── utils.py           # Contains the functions extracted from scripts
+│
+├── /templates/            # Directory for HTML templates
+│   ├── template.html
+│   ├── grouped-template.html
+│
+├── /static/               # Directory for static files like CSS, JS, etc.
+│   ├── css/
+│   │   ├── common.css     # CSS file used in HTML templates
+│
+├── /scripts/              # Directory for Python scripts
+│   ├── make_page.py       # Script to generate standard bookmarks HTML
+│   ├── grouped_bookmarks.py  # Script to generate grouped bookmarks HTML
+│
+├── /output/               # Directory for generated HTML output files
+│   └── (HTML files)       # HTML files will be saved here
+│
+├── README.md              # Documentation about the project
+├── requirements.txt       # List of dependencies, if any
+└── .gitignore             # Git ignore file to exclude unnecessary files
+```
 
 ## Prerequisites
 
 - Python 3.7 or higher
 
-## 1. Install Required Python Packages
+## Installation
 
-Before running the script, you'll need to install the required Python packages. You can install them using `pip`.
+1. **Clone the Repository**
 
-1. **Install the Required Packages**
+   ```
+   git clone <repository-url>
+   cd <repository-directory>
+   ```
 
-   Navigate to the project directory and run the following command:
+2. **Install Required Packages**
+
+   If there are any dependencies, you can install them using the following command:
 
    ```
    pip install -r requirements.txt
    ```
 
-   This command installs all the necessary packages listed in the `requirements.txt` file.
+## Usage
 
-## 2. Usage
+### Generate Standard Bookmarks HTML
 
-1. **Clone the Repository**
-
-   ```
-   git clone https://github.com/edoloughlin/bookmarks2html.git
-   cd bookmarks2html
-   ```
-
-2. **Run the Script**
-
-   The main script is `make-page.py`. To run it, use the following command:
+1. Navigate to the `scripts/` directory:
 
    ```
-   python3 make-page.py
+   cd scripts
    ```
 
-   This will generate an HTML file named `firefox_bookmarks.html` in your home directory.
+2. Run the `make_page.py` script:
 
-3. **View the Generated HTML**
+   ```
+   python3 make_page.py
+   ```
 
-   Open the generated `bookmarks.html` file in your web browser to view your bookmarks.
+3. The generated HTML file (`firefox_bookmarks.html`) will be saved in the `output/` directory.
+
+### Generate Grouped Bookmarks HTML
+
+1. Navigate to the `scripts/` directory:
+
+   ```
+   cd scripts
+   ```
+
+2. Run the `grouped_bookmarks.py` script:
+
+   ```
+   python3 grouped_bookmarks.py
+   ```
+
+3. The generated HTML file (`grouped_firefox_bookmarks.html`) will be saved in the `output/` directory.
 
 ## Customization
 
-- You can modify the `template.html` file to customize the appearance of the generated HTML page.
-- The CSS styles within `template.html` can be adjusted to change the layout, colors, and fonts.
+- You can modify the HTML templates located in the `templates/` directory to change the appearance of the generated HTML pages.
+- CSS styles can be adjusted in the `static/css/common.css` file.
 
 ## Troubleshooting
 
-- If the script can't find your Firefox profile, verify the profile path and adjust the script if necessary.
+- If the script cannot find your Firefox profile, ensure that Firefox is installed and that the profile path is correct.
+- Ensure Firefox is closed when running the script to avoid database locking issues.
 
 ## License
 

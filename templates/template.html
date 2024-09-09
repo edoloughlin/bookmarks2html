@@ -30,9 +30,13 @@
                     <div class="bookmark-item">
                         <a href="{{ bookmark.url }}" target="_blank">{{ bookmark.title }}</a>
                         <div class="bookmark-details">
-                            <div>{{ bookmark.url }}</div>
-                            {% if bookmark.tags %}
-                            <div>Tags: {{ bookmark.tags }}</div>
+                            <div class="bookmark-url">{{ bookmark.url }}</div>
+                            {% if bookmark.tags or bookmark.keyword %}
+			    <div>
+				    {% if bookmark.tags %}<span class="bookmark-tags">{{ bookmark.tags  }} </span>{% endif %}
+				    {% if bookmark.tags and bookmark.keyword %}; {% endif %}
+				    {% if bookmark.keyword %}<span class="bookmark-keywords">{{ bookmark.keyword }}</span>{% endif %}
+			    </div>
                             {% endif %}
                             {% if bookmark.keyword %}
                             <div>Keyword: {{ bookmark.keyword }}</div>

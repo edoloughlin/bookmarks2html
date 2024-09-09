@@ -1,5 +1,8 @@
-from bookmark_utils import get_firefox_profile_path, generate_html, build_full_folder_path
+from bookmark_utils.utils import get_firefox_profile_path, generate_html, build_full_folder_path
+import os
+import shutil
 import sqlite3
+import tempfile  # Import tempfile to handle temporary files
 from datetime import datetime, timedelta
 
 def fetch_bookmarks_grouped_by_date(db_path):
@@ -14,17 +17,14 @@ def fetch_bookmarks_grouped_by_date(db_path):
         today = datetime.now()
         one_day_ago = today - timedelta(days=1)
         one_week_ago = today - timedelta(weeks=1)
-        one_month_ago = today - timedelta(days=30)
+        one_month_ago = today.replace(day=1)
         start_of_year = today.replace(month=1, day=1)
-        start_of_last_year = start_of_year.replace(year=start_of_year.year - 1)
         
         categories = {
             "Today": [],
             "This Week": [],
             "This Month": [],
-            "This Year": [],
-            "Last Year": [],
-            "Older": []
+            "This Year": []
         }
 
         cursor.execute("""
@@ -34,13 +34,16 @@ def fetch_bookmarks_grouped_by_date(db_path):
             FROM moz_bookmarks b
             LEFT JOIN moz_places p ON b.fk = p.id
             WHERE p.url IS NOT NULL
-            ORDER BY b.dateAdded DESC
+            ORDER BY date_added DESC
         """)
         bookmarks = cursor.fetchall()
+
+        yearly_categories = {}
 
         for title, url, date_added, last_modified, parent_id in bookmarks:
             folder_path = build_full_folder_path(cursor, parent_id)
             bookmark_time = datetime.strptime(date_added, '%Y-%m-%d %H:%M:%S')
+
             bookmark_info = {
                 "title": title,
                 "url": url,
@@ -57,44 +60,34 @@ def fetch_bookmarks_grouped_by_date(db_path):
                 categories["This Month"].append(bookmark_info)
             elif bookmark_time >= start_of_year:
                 categories["This Year"].append(bookmark_info)
-            elif bookmark_time >= start_of_last_year:
-                categories["Last Year"].append(bookmark_info)
             else:
-                categories["Older"].append(bookmark_info)
+                year = bookmark_time.year
+                if year not in yearly_categories:
+                    yearly_categories[year] = []
+                yearly_categories[year].append(bookmark_info)
+
+        # Merge categories and sort the yearly categories in descending order
+        sorted_categories = {**categories, **{year: yearly_categories[year] for year in sorted(yearly_categories, reverse=True)}}
 
         conn.close()
-        return categories
+        return sorted_categories
 
     finally:
         shutil.rmtree(temp_dir)
 
-def format_category_title(category_name, today, one_week_ago, start_of_year):
-    if category_name == "Today":
-        return f"Today ({today.strftime('%Y-%m-%d')})"
-    elif category_name == "This Week":
-        return f"This Week ({one_week_ago.strftime('%Y-%m-%d')} - {today.strftime('%Y-%m-%d')})"
-    elif category_name == "This Month":
-        return f"This Month ({today.strftime('%B')})"
-    elif category_name == "This Year":
-        return f"This Year ({today.strftime('%Y')})"
-    elif category_name == "Last Year":
-        return f"Last Year ({today.year - 1})"
-    else:
-        return f"Older ({start_of_year.year - 1} and earlier)"
+def format_category_title(category_name):
+    """Format the category title for predefined and yearly categories."""
+    return str(category_name) if isinstance(category_name, int) else category_name
 
 if __name__ == "__main__":
     try:
         db_path = get_firefox_profile_path()
         bookmarks_by_date = fetch_bookmarks_grouped_by_date(db_path)
-        today = datetime.now()
-        one_week_ago = today - timedelta(weeks=1)
-        start_of_year = today.replace(month=1, day=1)
 
         context = {
             'bookmarks_by_date': bookmarks_by_date,
-            'category_titles': {category: format_category_title(category, today, one_week_ago, start_of_year)
-                                for category in bookmarks_by_date.keys()},
-            'generated_date': today.isoformat()
+            'category_titles': {key: format_category_title(key) for key in bookmarks_by_date.keys()},
+            'generated_date': datetime.now().isoformat()
         }
         generate_html('grouped-template.html', context, 'grouped_firefox_bookmarks.html')
     except Exception as e:

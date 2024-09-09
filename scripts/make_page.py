@@ -1,5 +1,8 @@
-from bookmark_utils import get_firefox_profile_path, generate_html, build_full_folder_path
+from bookmark_utils.utils import get_firefox_profile_path, generate_html, build_full_folder_path
+import shutil
 import sqlite3
+import tempfile
+import os
 from datetime import datetime
 
 def fetch_bookmarks(db_path):
@@ -33,10 +36,10 @@ def fetch_bookmarks(db_path):
 def fetch_top_level_bookmarks(cursor, parent_id, section_data):
     cursor.execute("""
         SELECT b.id, b.title, p.url, k.keyword, 
-               (SELECT GROUP_CONCAT(t.title, ', ') 
-                FROM moz_bookmarks b_t
-                JOIN moz_bookmarks t ON b_t.parent = t.id
-                WHERE b_t.id = b.id) as tags
+               (SELECT GROUP_CONCAT(a.content, ', ') 
+                FROM moz_items_annos a 
+                JOIN moz_anno_attributes n ON n.id = a.anno_attribute_id 
+                WHERE a.item_id = b.id AND n.name = 'bookmarkProperties/placesUI')
         FROM moz_bookmarks b
         LEFT JOIN moz_places p ON b.fk = p.id
         LEFT JOIN moz_keywords k ON b.keyword_id = k.id
@@ -67,10 +70,10 @@ def fetch_folders(cursor, parent_id, parent_path, section_data):
 
         cursor.execute("""
             SELECT b.id, b.title, p.url, k.keyword, 
-                   (SELECT GROUP_CONCAT(t.title, ', ') 
-                    FROM moz_bookmarks b_t
-                    JOIN moz_bookmarks t ON b_t.parent = t.id
-                    WHERE b_t.id = b.id) as tags
+                   (SELECT GROUP_CONCAT(a.content, ', ') 
+                    FROM moz_items_annos a 
+                    JOIN moz_anno_attributes n ON n.id = a.anno_attribute_id 
+                    WHERE a.item_id = b.id AND n.name = 'bookmarkProperties/placesUI')
             FROM moz_bookmarks b
             LEFT JOIN moz_places p ON b.fk = p.id
             LEFT JOIN moz_keywords k ON b.keyword_id = k.id

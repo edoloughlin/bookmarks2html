@@ -61,6 +61,7 @@ body {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     display: inline-block;
     width: 100%;
+    max-width: 100%;
     box-sizing: border-box;
 }
 .folder h3 {
@@ -86,9 +87,17 @@ body {
     color: #0066cc;
     display: block;
     font-weight: 500;
+    white-space: nowrap;      /* Prevent text from wrapping */
+    overflow: hidden;         /* Hide overflowed text */
+    text-overflow: ellipsis;  /* Show ellipses (...) */
 }
 .bookmark-details {
     font-size: 12px;
     color: #777;
     word-break: break-all;
+}
+.bookmark-url {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
