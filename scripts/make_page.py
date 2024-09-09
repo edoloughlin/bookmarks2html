@@ -1,3 +1,13 @@
+import sys
+import os
+
+# Get the directory of the current script (which is the 'scripts/' directory)
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Add the parent directory (project root) to the Python path
+project_root = os.path.dirname(current_dir)
+sys.path.append(project_root)
+
 from bookmark_utils.utils import get_firefox_profile_path, generate_html, build_full_folder_path
 import shutil
 import sqlite3
